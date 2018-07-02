@@ -7,6 +7,30 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:artnet_tester/models/app_state.dart';
 
 import 'package:artnet_tester/views/network_settings_screen.dart';
+import 'package:artnet_tester/views/components/packet_list.dart';
+import 'dart:io';
+import 'dart:async';
+import 'package:validator/validator.dart';
+import 'package:flutter/material.dart';
+import 'package:d_artnet/d_artnet.dart';
+
+import 'package:flutter/material.dart';
+import 'package:d_artnet/d_artnet.dart';
+
+import 'package:redux/redux.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+
+import 'package:artnet_tester/models/action.dart';
+import 'package:artnet_tester/models/app_state.dart';
+import 'package:artnet_tester/models/network_settings.dart';
+import 'package:artnet_tester/models/packet.dart';
+
+import 'package:artnet_tester/views/main_screen.dart';
+import 'package:artnet_tester/views/network_settings_screen.dart';
+import 'package:artnet_tester/views/components/packet_item.dart';
+
+import 'package:artnet_tester/controllers/reducers.dart';
+import 'package:artnet_tester/controllers/udp_server.dart';
 
 
 class MainScreen extends StatefulWidget {
@@ -45,7 +69,19 @@ class MainScreenState extends State<MainScreen> {
                   style: Theme.of(context).textTheme.display1,
                 );
               },
-            )
+            ),
+            new SizedBox(
+              width: 200.0,
+              height: 500.0,
+              child: new StoreConnector<AppState, List<Packet>>(
+                converter: (store) => store.state.packets,
+                builder: (context, packets) {
+                  return new PacketList(
+                    packets: packets
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),

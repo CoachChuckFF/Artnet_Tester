@@ -76,7 +76,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "73ac3d180c033576a604df2d3082548c1d6041b6"
+      resolved-ref: "6077dbe9ebd9172067cf6a71addf530f3926b0de"
       url: "https://github.com/TheOnlyCaky/d_artnet.git"
     source: git
     version: "0.1.0"
