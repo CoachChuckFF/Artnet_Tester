@@ -5,6 +5,7 @@ import 'package:d_artnet/d_artnet.dart';
 import 'package:redux/redux.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 
+import 'package:artnet_tester/models/action.dart';
 import 'package:artnet_tester/models/app_state.dart';
 import 'package:artnet_tester/models/network_settings.dart';
 import 'package:artnet_tester/models/packet.dart';
@@ -12,7 +13,6 @@ import 'package:artnet_tester/models/packet.dart';
 import 'package:artnet_tester/views/main_screen.dart';
 import 'package:artnet_tester/views/network_settings_screen.dart';
 
-import 'package:artnet_tester/controllers/actions.dart';
 import 'package:artnet_tester/controllers/reducers.dart';
 import 'package:artnet_tester/controllers/udp_server.dart';
 
@@ -30,6 +30,20 @@ bool loadingReducer(bool state, action) {
 }
 
 List<Packet> packetReducer(List<Packet> state, action){
+  if(!(action is ArtnetAction)) return state;
+  ArtnetAction act = action;
+
+  switch(act.action){
+    case Actions.addPacket:
+      return new List<Packet>.from(state)..add(act.packet);
+    break;
+    case Actions.clearPacket:
+      return const [];
+    break;
+    default:
+    break;
+  }
+
   return state;
 }
 
@@ -38,8 +52,19 @@ NetworkSettings networkSettingsReducer(NetworkSettings state, action){
 }
 
 int countReducer(int state, action){
-  if(action == Actions.messageRecived){
-    return state + 1;
+  if(!(action is ArtnetAction)) return state;
+  ArtnetAction act = action;
+
+  switch(act.action){
+    case Actions.addPacket:
+      state++;
+    break;
+    case Actions.clearPacket:
+      state = 0;
+    break;
+    default:
+    break;
   }
+
   return state;
 }

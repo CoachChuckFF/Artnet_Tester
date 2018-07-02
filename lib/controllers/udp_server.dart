@@ -4,9 +4,13 @@ import 'package:validator/validator.dart';
 import 'package:flutter/material.dart';
 import 'package:d_artnet/d_artnet.dart';
 
-import 'package:flutter_redux/flutter_redux.dart';
-import 'package:redux/redux.dart';
+import 'package:flutter/material.dart';
+import 'package:d_artnet/d_artnet.dart';
 
+import 'package:redux/redux.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+
+import 'package:artnet_tester/models/action.dart';
 import 'package:artnet_tester/models/app_state.dart';
 import 'package:artnet_tester/models/network_settings.dart';
 import 'package:artnet_tester/models/packet.dart';
@@ -14,7 +18,6 @@ import 'package:artnet_tester/models/packet.dart';
 import 'package:artnet_tester/views/main_screen.dart';
 import 'package:artnet_tester/views/network_settings_screen.dart';
 
-import 'package:artnet_tester/controllers/actions.dart';
 import 'package:artnet_tester/controllers/reducers.dart';
 import 'package:artnet_tester/controllers/udp_server.dart';
 
@@ -65,27 +68,61 @@ class UdpServerController{
 
   void _handlePacket(RawSocketEvent e){
     Datagram gram = _socket.receive();
+    var packet;
     if (gram == null) return;
 
     if(!checkArtnetPacket(gram.data)) return;
 
     if(getOpCode(gram.data) ==  ArtnetBeepBeepPacket.opCode){
-      var packet = ArtnetBeepBeepPacket(null, gram.data);
+      packet = ArtnetBeepBeepPacket(null, gram.data);
       if(packet.uuid == this._uuid){
         this._ownIp = gram.address;
+        print("Own ip: " + this._ownIp.toString());
       }
-    }
-
-    switch(getOpCode(gram.data)){
-      case ArtnetPollPacket.opCode:
-        var packet = ArtnetPollPacket(gram.data);
-      break;
     }
 
     if(this._ownIp == gram.address) return;
 
+    switch(getOpCode(gram.data)){
+      case ArtnetDataPacket.opCode:
+        packet = Packet(true, ArtnetDataPacket(gram.data));
+      break;
+      case ArtnetPollPacket.opCode:
+        packet = Packet(true, ArtnetPollPacket(gram.data));
+        sendPacket(_populateOutgoingPollReply(), gram.address);
+      break;
+      case ArtnetPollReplyPacket.opCode:
+        packet = Packet(true, ArtnetPollReplyPacket(gram.data));
+        //sendPacket(gram.data, gram.address);
+      break;
+      case ArtnetAddressPacket.opCode:
+        packet = Packet(true, ArtnetAddressPacket(gram.data));
+      break;
+      case ArtnetIpProgPacket.opCode:
+        packet = Packet(true, ArtnetIpProgPacket(gram.data));
+      break;
+      case ArtnetIpProgReplyPacket.opCode:
+        packet = Packet(true, ArtnetIpProgReplyPacket(gram.data));
+      break;
+      case ArtnetCommandPacket.opCode:
+        packet = Packet(true, ArtnetCommandPacket(gram.data));
+      break;
+      case ArtnetSyncPacket.opCode:
+        packet = Packet(true, ArtnetSyncPacket(gram.data));
+      break;
+      case ArtnetFirmwareMasterPacket.opCode:
+        packet = Packet(true, ArtnetFirmwareMasterPacket(gram.data));
+      break;
+      case ArtnetFirmwareReplyPacket.opCode:
+        packet = Packet(true, ArtnetFirmwareReplyPacket(gram.data));
+      break;
+      default:
+        return; //unknown packet
+    }
+
+
     if(this._store != null){
-      this._store.dispatch(Actions.messageRecived);
+      this._store.dispatch(new ArtnetAction(Actions.addPacket, packet));
     } else {
       print("Error: Null store");
       return;
@@ -93,30 +130,80 @@ class UdpServerController{
 
   }
 
-  void sendPacket(List<int> packet,[String ip, int port]){
-    String ipToSend = (ip == null) ? this._outgoingIp : ip;
+  void sendPacket(List<int> packet,[ip, int port]){
+    InternetAddress ipToSend = InternetAddress(broadcast);
     int portToSend = (port == null) ? this._outgoingPort : port; 
 
-    if(!isIP(ipToSend)) return;
-
-    if(_connected){
-      _socket.send(packet, InternetAddress(ipToSend), portToSend);
+    if(ip != null){
+      if(ip is String){
+        if(isIP(ip)){
+          ipToSend = InternetAddress(ip);
+        } else return;
+      } else if(ip is InternetAddress){
+        ipToSend = (ip as InternetAddress);
+      } else return;
     }
+    
+
+    if(_connected) _socket.send(packet, ipToSend, portToSend);
+  
   }
 
   void _tick(){
     ArtnetPollPacket packet = ArtnetPollPacket();
 
     sendPacket(packet.udpPacket, broadcast, artnetPort);
-    print("tick");
-    new Timer(Duration(seconds: 3), _tick);
+    //print("tick");
+    new Timer(Duration(seconds: 33), _tick);
   }
 
   void _beep(){
     ArtnetBeepBeepPacket packet = ArtnetBeepBeepPacket(this._uuid);
 
     sendPacket(packet.udpPacket, broadcast, artnetPort);
-    print("beep");
-    new Timer(Duration(seconds: 9), _beep);
+    //print("beep");
+    new Timer(Duration(seconds: 333), _beep);
+  }
+
+  List<int> _populateOutgoingPollReply(){
+    ArtnetPollReplyPacket reply = ArtnetPollReplyPacket();
+
+    reply.ip = this._ownIp.rawAddress;
+
+    reply.port = 0x1936;
+
+    reply.versionInfoH = 0;
+    reply.versionInfoL = 1;
+
+    reply.universe = 0;
+
+    reply.oemHi = 0x12;
+    reply.oemLo = 0x51;
+
+    reply.ubeaVersion = 0;
+
+    reply.status1ProgrammingAuthority = 2;
+    reply.status1IndicatorState = 2;
+
+    reply.estaManHi = 0x01;
+    reply.estaManLo = 0x04;
+
+    reply.shortName = "Baa";
+    reply.longName = "Blizzard Art-Net Analyzer - Baa";
+
+    reply.nodeReport = "!Enjoy the little things!";
+    //reply.packet.setUint8(ArtnetPollReplyPacket.nodeReportIndex, 0); //Sometimes you have to look for the little things
+
+    reply.numPorts = 1;
+
+    reply.portTypes[0] = ArtnetPollReplyPacket.portTypesProtocolOptionDMX;
+
+    reply.style = ArtnetPollReplyPacket.styleOptionStNode;
+
+    reply.status2HasWebConfigurationSupport = true;
+    reply.status2DHCPCapable = true;
+
+    return reply.udpPacket;
   }
 }
+
