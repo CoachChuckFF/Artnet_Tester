@@ -21,25 +21,26 @@ import 'package:artnet_tester/views/network_settings_screen.dart';
 import 'package:artnet_tester/controllers/reducers.dart';
 import 'package:artnet_tester/controllers/udp_server.dart';
 
-final UdpServerController server = new UdpServerController();
+final UdpServerController tron = new UdpServerController();
 
 class UdpServerController{
+  /*Consts*/
   static const String broadcast = "255.255.255.255";
   static const int artnetPort = 6454;
 
-  bool _connected = false;
+  /*Constructors*/
+  Store<AppState> store;
+  String outgoingIp;
+  int outgoingPort;
 
+  /*Internals*/
   RawDatagramSocket _socket;
-  Store _store;
   InternetAddress _ownIp = InternetAddress.anyIPv4;
-  String _outgoingIp = broadcast;
-  int _outgoingPort = artnetPort;
+  bool _connected = false;
   int _uuid = 0;
 
-  UdpServerController([String ip, int port, Store store]){
-    if(ip != null) this.outgoingIp = ip;
-    if(port != null) this.outgoingPort = port;
-    if(store != null) this._store = store;
+  UdpServerController({this.store, this.outgoingIp = broadcast, this.outgoingPort = artnetPort} ){
+
     RawDatagramSocket.bind(InternetAddress.anyIPv4, artnetPort).then((RawDatagramSocket socket){
       this._socket = socket;
       this._uuid = generateUUID32(3);
@@ -55,16 +56,6 @@ class UdpServerController{
       new Timer(Duration(seconds: 9), _beep);
     });
   }
-
-  void setStore(Store store){
-    this._store = store;
-  }
-
-  String get outgoingIp => this._outgoingIp;
-  set outgoingIp(String value) => this._outgoingIp = (isIP(value)) ? value : broadcast;
-
-  int get outgoingPort => this._outgoingPort;
-  set outgoingPort(int value) => this._outgoingPort = (value < 0) ? artnetPort : value;
 
   void _handlePacket(RawSocketEvent e){
     Datagram gram = _socket.receive();
@@ -120,19 +111,14 @@ class UdpServerController{
         return; //unknown packet
     }
 
-
-    if(this._store != null){
-      this._store.dispatch(new ArtnetAction(Actions.addPacket, packet));
-    } else {
-      print("Error: Null store");
-      return;
-    }
-
+    if(store != null){
+      this.store.dispatch(new ArtnetAction(ArtnetActions.addPacket, packet));
+    } else print("No store connected...");
   }
 
   void sendPacket(List<int> packet,[ip, int port]){
     InternetAddress ipToSend = InternetAddress(broadcast);
-    int portToSend = (port == null) ? this._outgoingPort : port; 
+    int portToSend = (port == null) ? this.outgoingPort : port; 
 
     if(ip != null){
       if(ip is String){

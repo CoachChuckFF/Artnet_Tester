@@ -18,17 +18,18 @@ import 'package:artnet_tester/views/network_settings_screen.dart';
 import 'package:artnet_tester/controllers/reducers.dart';
 import 'package:artnet_tester/controllers/udp_server.dart';
 
+
 void main(){
   final store = new Store<AppState>(
     appReducer,
     initialState: new AppState(),
   );
-
-  server.setStore(store);
+ 
+  tron.store = store;
 
   runApp(new MyApp(
     title: 'Artnet Tester',
-    store: store
+    store: store,
   ));
 }
 

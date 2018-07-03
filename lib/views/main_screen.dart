@@ -28,6 +28,9 @@ import 'package:artnet_tester/models/packet.dart';
 import 'package:artnet_tester/views/main_screen.dart';
 import 'package:artnet_tester/views/network_settings_screen.dart';
 import 'package:artnet_tester/views/components/packet_item.dart';
+import 'package:artnet_tester/views/components/packet_count.dart';
+import 'package:artnet_tester/views/components/send_packet.dart';
+import 'package:artnet_tester/views/themes.dart';
 
 import 'package:artnet_tester/controllers/reducers.dart';
 import 'package:artnet_tester/controllers/udp_server.dart';
@@ -40,51 +43,41 @@ class MainScreen extends StatefulWidget {
 
 class MainScreenState extends State<MainScreen> {
 
-  //data
-  final _io_packets = <List<int>>[];
-
-  //aesthetics
-  final _font = const TextStyle(color: Colors.deepOrange,
-                                fontSize: 18.0,
-                                fontFamily: 'Roboto');
   @override
   Widget build(BuildContext context) {
     return new Scaffold (
+
       appBar: new AppBar(
         title: new Text('Artnet Packets'),
         actions: <Widget>[
           new IconButton(icon: new Icon(Icons.settings), onPressed: _pushNetworkSettings),
         ],
       ),
-      body: new Center(
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            new Text("Artnet Packets Received"),
-            new StoreConnector<AppState, String>(
-              converter: (store) => store.state.count.toString(),
-              builder: (context, count) {
-                return new Text(
-                  count,
-                  style: Theme.of(context).textTheme.display1,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          new StoreConnector<AppState, String>(
+            converter: (store) => store.state.count.toString(),
+            builder: (context, count) {
+              return new PacketCount(
+                count: count
+              );
+            },
+          ),
+          new Expanded(
+            child: new StoreConnector<AppState, List<Packet>>(
+              converter: (store) => store.state.packets,
+              builder: (context, packets) {
+                return new PacketList(
+                  packets: packets
                 );
               },
             ),
-            new SizedBox(
-              width: 200.0,
-              height: 500.0,
-              child: new StoreConnector<AppState, List<Packet>>(
-                converter: (store) => store.state.packets,
-                builder: (context, packets) {
-                  return new PacketList(
-                    packets: packets
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+          new SendPacket(_pushSendPacketPage),
+        ],
+      )
     );
   }
 
@@ -96,6 +89,10 @@ class MainScreenState extends State<MainScreen> {
         },
       ),
     );
+  }
+
+  void _pushSendPacketPage() {
+    print("Send Packet");
   }
 
 }

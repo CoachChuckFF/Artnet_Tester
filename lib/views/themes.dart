@@ -1,3 +1,13 @@
+import 'package:flutter/material.dart';
+
+
+import 'package:flutter_redux/flutter_redux.dart';
+
+
+import 'package:artnet_tester/models/app_state.dart';
+
+import 'package:artnet_tester/views/network_settings_screen.dart';
+import 'package:artnet_tester/views/components/packet_list.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:validator/validator.dart';
@@ -18,44 +28,19 @@ import 'package:artnet_tester/models/packet.dart';
 import 'package:artnet_tester/views/main_screen.dart';
 import 'package:artnet_tester/views/network_settings_screen.dart';
 import 'package:artnet_tester/views/components/packet_item.dart';
+import 'package:artnet_tester/views/components/packet_count.dart';
 
 import 'package:artnet_tester/controllers/reducers.dart';
 import 'package:artnet_tester/controllers/udp_server.dart';
 
-class PacketList extends StatelessWidget {
-  final List<Packet> packets;
+const ButtonStyle = TextStyle(color: Colors.white,
+                                fontSize: 23.0,
+                                fontFamily: 'Roboto');
 
-  PacketList({
-    @required this.packets,
-  });
+const SubTitleStyle = TextStyle(color: Colors.white70,
+                                fontSize: 33.0,
+                                fontFamily: 'Roboto');
 
-  @override
-  Widget build(BuildContext context) {
-    return _buildListView();
-  }
-
-  ListView _buildListView() {
-    return new ListView.builder(
-      itemCount: packets.length,
-      itemBuilder: (BuildContext context, int index) {
-        final packet = packets[index];
-
-        return new PacketItem(
-          packet: packet,
-        );
-      },
-    );
-  }
-
-  void _removePacket(BuildContext context, Packet packet) {
-
-    Scaffold.of(context).showSnackBar(new SnackBar(
-        duration: new Duration(seconds: 2),
-        backgroundColor: Theme.of(context).backgroundColor,
-        content: new Text(
-          "Goodbye",
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        )));
-  }
-}
+const TitleStyle = TextStyle(color: Colors.white,
+                                fontSize: 33.0,
+                                fontFamily: 'Roboto');

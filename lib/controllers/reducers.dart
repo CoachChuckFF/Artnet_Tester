@@ -34,10 +34,10 @@ List<Packet> packetReducer(List<Packet> state, action){
   ArtnetAction act = action;
 
   switch(act.action){
-    case Actions.addPacket:
+    case ArtnetActions.addPacket:
       return new List<Packet>.from(state)..add(act.packet);
     break;
-    case Actions.clearPacket:
+    case ArtnetActions.clearPacket:
       return const [];
     break;
     default:
@@ -48,6 +48,21 @@ List<Packet> packetReducer(List<Packet> state, action){
 }
 
 NetworkSettings networkSettingsReducer(NetworkSettings state, action){
+  if(!(action is SettingAction)) return state;
+  SettingAction act = action;
+
+  switch(act.action){
+    case SettingActions.setOutgoingIp:
+      tron.outgoingIp = action.setting.ipAddress;
+      return state.copyWith(ipAddress: action.setting.ipAddress);
+    case SettingActions.setOutgoingPort:
+      tron.outgoingPort = action.setting.port;
+      return state.copyWith(port: action.setting.port);
+    break;
+    default:
+    break;
+  }
+
   return state;
 }
 
@@ -56,10 +71,10 @@ int countReducer(int state, action){
   ArtnetAction act = action;
 
   switch(act.action){
-    case Actions.addPacket:
+    case ArtnetActions.addPacket:
       state++;
     break;
-    case Actions.clearPacket:
+    case ArtnetActions.clearPacket:
       state = 0;
     break;
     default:

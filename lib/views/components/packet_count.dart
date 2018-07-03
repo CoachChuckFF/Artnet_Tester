@@ -18,44 +18,46 @@ import 'package:artnet_tester/models/packet.dart';
 import 'package:artnet_tester/views/main_screen.dart';
 import 'package:artnet_tester/views/network_settings_screen.dart';
 import 'package:artnet_tester/views/components/packet_item.dart';
+import 'package:artnet_tester/views/themes.dart';
 
 import 'package:artnet_tester/controllers/reducers.dart';
 import 'package:artnet_tester/controllers/udp_server.dart';
 
-class PacketList extends StatelessWidget {
-  final List<Packet> packets;
+class PacketCount extends StatelessWidget {
+  final String count;
 
-  PacketList({
-    @required this.packets,
+  PacketCount({
+    @required this.count,
   });
 
   @override
   Widget build(BuildContext context) {
-    return _buildListView();
-  }
-
-  ListView _buildListView() {
-    return new ListView.builder(
-      itemCount: packets.length,
-      itemBuilder: (BuildContext context, int index) {
-        final packet = packets[index];
-
-        return new PacketItem(
-          packet: packet,
-        );
-      },
+    return new Container(
+      decoration: new BoxDecoration(
+        color: Colors.deepPurpleAccent
+      ),
+      child: new Column(
+        children: <Widget>[
+          new Padding(
+            padding: new EdgeInsets.all(10.0),
+            child: new Text(
+              "Art-Net 4 Packet Count",
+              textAlign: TextAlign.center,
+              style: TitleStyle,
+            )
+          ),
+          new Padding(
+            padding: new EdgeInsets.only(
+              bottom: 10.0
+            ),
+            child: new Text(
+              this.count,
+              textAlign: TextAlign.center,
+              style: SubTitleStyle,
+            )
+          ),
+        ],
+      ),
     );
-  }
-
-  void _removePacket(BuildContext context, Packet packet) {
-
-    Scaffold.of(context).showSnackBar(new SnackBar(
-        duration: new Duration(seconds: 2),
-        backgroundColor: Theme.of(context).backgroundColor,
-        content: new Text(
-          "Goodbye",
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        )));
   }
 }

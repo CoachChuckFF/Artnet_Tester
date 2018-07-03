@@ -21,35 +21,64 @@ import 'package:artnet_tester/views/network_settings_screen.dart';
 import 'package:artnet_tester/controllers/reducers.dart';
 import 'package:artnet_tester/controllers/udp_server.dart';
 
+typedef void PacketActionCallback(Packet packet);
+
 class PacketItem extends StatelessWidget {
-  final DismissDirectionCallback onDismissed;
-  final GestureTapCallback onTap;
+  final PacketActionCallback onTap;
+  final PacketActionCallback onDoubleTap;
+  final PacketActionCallback onLongPressed;
   final Packet packet;
 
   PacketItem({
-    @required this.onDismissed,
     @required this.onTap,
+    @required this.onDoubleTap,
+    @required this.onLongPressed,
     @required this.packet,
   });
 
+  GestureTapCallback _getHandler(PacketActionCallback callback) {
+    return callback == null ? null : () => callback(packet);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return new Text(packet.uuid.toString() + " " + ((packet.receivedItem) ? "<==" : "==>"));
-    return new Dismissible(
-      key: key,
-      onDismissed: onDismissed,
-      child: new ListTile(
-        onTap: onTap,
-        title: new Text(
-          packet.uuid.toString() + " " + ((packet.receivedItem) ? "<==" : "==>"),
-          style: Theme.of(context).textTheme.title,
+    /*return new Text(packet.uuid.toString() + " " + ((packet.receivedItem) ? "<==" : "==>"));*/
+    return new InkWell(
+      onTap: _getHandler(onTap),
+      onDoubleTap: _getHandler(onDoubleTap),
+      onLongPress: _getHandler(onLongPressed),
+      child: new Container(
+        padding: const EdgeInsets.all(3.0),
+        decoration: new BoxDecoration(
+          border: new Border(
+            bottom: new BorderSide(
+              color: Theme.of(context).dividerColor
+            )
+          )
         ),
-        subtitle: new Text(
-          opCodeToString(getOpCode(packet.artnetPacket.udpPacket)),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.subhead,
-        ),
+        child: new Row(
+          children: <Widget>[
+            new Expanded(
+              flex: 2,
+              child: new Text(
+                packet.uuid.toString()
+              )
+            ),
+            new Expanded(
+              child: new Text(
+                opCodeToString(getOpCode(packet.artnetPacket.udpPacket)),
+                textAlign: TextAlign.right
+              )
+            ),
+            new Expanded(
+              child: new Icon(
+              ((packet.receivedItem) ? Icons.arrow_back_ios : Icons.arrow_forward_ios),
+              color: Colors.deepOrange,
+              size: 55.0,
+              ),
+            ),
+          ],
+        )
       ),
     );
   }

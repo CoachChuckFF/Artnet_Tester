@@ -18,44 +18,40 @@ import 'package:artnet_tester/models/packet.dart';
 import 'package:artnet_tester/views/main_screen.dart';
 import 'package:artnet_tester/views/network_settings_screen.dart';
 import 'package:artnet_tester/views/components/packet_item.dart';
+import 'package:artnet_tester/views/themes.dart';
 
 import 'package:artnet_tester/controllers/reducers.dart';
 import 'package:artnet_tester/controllers/udp_server.dart';
 
-class PacketList extends StatelessWidget {
-  final List<Packet> packets;
+class SendPacket extends StatelessWidget {
+  final onTap;
 
-  PacketList({
-    @required this.packets,
-  });
+  SendPacket(this.onTap);
 
   @override
   Widget build(BuildContext context) {
-    return _buildListView();
-  }
-
-  ListView _buildListView() {
-    return new ListView.builder(
-      itemCount: packets.length,
-      itemBuilder: (BuildContext context, int index) {
-        final packet = packets[index];
-
-        return new PacketItem(
-          packet: packet,
-        );
-      },
+    return new Container(
+      decoration: new BoxDecoration(
+        color: Colors.deepPurpleAccent
+      ),
+      child: new FlatButton.icon(
+        label: new Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: 21.0
+          ),
+          child: new Text(
+              "   Send Packet",
+              textAlign: TextAlign.center,
+              style: ButtonStyle,
+          ),
+        ), 
+        icon: const Icon(
+          Icons.send,
+          color: Colors.white,
+          size: 55.0,
+          ),
+        onPressed: onTap,
+      ),
     );
-  }
-
-  void _removePacket(BuildContext context, Packet packet) {
-
-    Scaffold.of(context).showSnackBar(new SnackBar(
-        duration: new Duration(seconds: 2),
-        backgroundColor: Theme.of(context).backgroundColor,
-        content: new Text(
-          "Goodbye",
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        )));
   }
 }
