@@ -42,7 +42,6 @@ class PacketItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    /*return new Text(packet.uuid.toString() + " " + ((packet.receivedItem) ? "<==" : "==>"));*/
     return new InkWell(
       onTap: _getHandler(onTap),
       onDoubleTap: _getHandler(onDoubleTap),
@@ -59,21 +58,34 @@ class PacketItem extends StatelessWidget {
         child: new Row(
           children: <Widget>[
             new Expanded(
+              child: new Text(
+                packet.uuid.toString(),
+                textAlign: TextAlign.center
+              )
+            ),
+            new Expanded(
               flex: 2,
               child: new Text(
-                packet.uuid.toString()
+                packet.ipAddress.toString(),
+                textAlign: TextAlign.center
+              )
+            ),
+            new Expanded(
+              child: new Text(
+                packet.port.toString(),
+                textAlign: TextAlign.center
               )
             ),
             new Expanded(
               child: new Text(
                 opCodeToString(getOpCode(packet.artnetPacket.udpPacket)),
-                textAlign: TextAlign.right
+                textAlign: TextAlign.center
               )
             ),
             new Expanded(
               child: new Icon(
               ((packet.receivedItem) ? Icons.arrow_back_ios : Icons.arrow_forward_ios),
-              color: Colors.deepOrange,
+              color: ((packet.receivedItem) ? Colors.deepOrange : Colors.green),
               size: 55.0,
               ),
             ),

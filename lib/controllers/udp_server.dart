@@ -76,36 +76,36 @@ class UdpServerController{
 
     switch(getOpCode(gram.data)){
       case ArtnetDataPacket.opCode:
-        packet = Packet(true, ArtnetDataPacket(gram.data));
+        packet = Packet(true, ArtnetDataPacket(gram.data), _internetAddressToString(gram.address), gram.port);
       break;
       case ArtnetPollPacket.opCode:
-        packet = Packet(true, ArtnetPollPacket(gram.data));
+        packet = Packet(true, ArtnetPollPacket(gram.data), _internetAddressToString(gram.address), gram.port);
         sendPacket(_populateOutgoingPollReply(), gram.address);
       break;
       case ArtnetPollReplyPacket.opCode:
-        packet = Packet(true, ArtnetPollReplyPacket(gram.data));
+        packet = Packet(true, ArtnetPollReplyPacket(gram.data), _internetAddressToString(gram.address), gram.port);
         //sendPacket(gram.data, gram.address);
       break;
       case ArtnetAddressPacket.opCode:
-        packet = Packet(true, ArtnetAddressPacket(gram.data));
+        packet = Packet(true, ArtnetAddressPacket(gram.data), _internetAddressToString(gram.address), gram.port);
       break;
       case ArtnetIpProgPacket.opCode:
-        packet = Packet(true, ArtnetIpProgPacket(gram.data));
+        packet = Packet(true, ArtnetIpProgPacket(gram.data), _internetAddressToString(gram.address), gram.port);
       break;
       case ArtnetIpProgReplyPacket.opCode:
-        packet = Packet(true, ArtnetIpProgReplyPacket(gram.data));
+        packet = Packet(true, ArtnetIpProgReplyPacket(gram.data), _internetAddressToString(gram.address), gram.port);
       break;
       case ArtnetCommandPacket.opCode:
-        packet = Packet(true, ArtnetCommandPacket(gram.data));
+        packet = Packet(true, ArtnetCommandPacket(gram.data), _internetAddressToString(gram.address), gram.port);
       break;
       case ArtnetSyncPacket.opCode:
-        packet = Packet(true, ArtnetSyncPacket(gram.data));
+        packet = Packet(true, ArtnetSyncPacket(gram.data), _internetAddressToString(gram.address), gram.port);
       break;
       case ArtnetFirmwareMasterPacket.opCode:
-        packet = Packet(true, ArtnetFirmwareMasterPacket(gram.data));
+        packet = Packet(true, ArtnetFirmwareMasterPacket(gram.data), _internetAddressToString(gram.address), gram.port);
       break;
       case ArtnetFirmwareReplyPacket.opCode:
-        packet = Packet(true, ArtnetFirmwareReplyPacket(gram.data));
+        packet = Packet(true, ArtnetFirmwareReplyPacket(gram.data), _internetAddressToString(gram.address), gram.port);
       break;
       default:
         return; //unknown packet
@@ -139,16 +139,16 @@ class UdpServerController{
     ArtnetPollPacket packet = ArtnetPollPacket();
 
     sendPacket(packet.udpPacket, broadcast, artnetPort);
-    //print("tick");
-    new Timer(Duration(seconds: 33), _tick);
+    print("tick");
+    new Timer(Duration(seconds: 15), _tick);
   }
 
   void _beep(){
     ArtnetBeepBeepPacket packet = ArtnetBeepBeepPacket(this._uuid);
 
     sendPacket(packet.udpPacket, broadcast, artnetPort);
-    //print("beep");
-    new Timer(Duration(seconds: 333), _beep);
+    print("beep");
+    new Timer(Duration(seconds: 33), _beep);
   }
 
   List<int> _populateOutgoingPollReply(){
@@ -190,6 +190,11 @@ class UdpServerController{
     reply.status2DHCPCapable = true;
 
     return reply.udpPacket;
+  }
+
+  String _internetAddressToString(InternetAddress address){
+    var temp = address.rawAddress;
+    return temp[0].toString() + "." + temp[1].toString() + "." + temp[2].toString() + "." + temp[3].toString();
   }
 }
 

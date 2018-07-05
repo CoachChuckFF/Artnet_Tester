@@ -18,44 +18,44 @@ import 'package:artnet_tester/models/packet.dart';
 import 'package:artnet_tester/views/main_screen.dart';
 import 'package:artnet_tester/views/network_settings_screen.dart';
 import 'package:artnet_tester/views/components/packet_item.dart';
+import 'package:artnet_tester/views/themes.dart';
 
 import 'package:artnet_tester/controllers/reducers.dart';
 import 'package:artnet_tester/controllers/udp_server.dart';
 
-class PacketList extends StatelessWidget {
-  final List<Packet> packets;
-  final PacketActionCallback onTap;
-  final PacketActionCallback onDoubleTap;
-  final PacketActionCallback onLongPress;
-  final ScrollController _scrollController = new ScrollController();
+class PacketButton extends StatelessWidget {
+  final onTap;
+  final Icon icon;
+  final String type;
+  final Color color;
 
-  PacketList({
-    @required this.packets,
-    @required this.onTap,
-    @required this.onDoubleTap,
-    @required this.onLongPress,
+  PacketButton({
+    this.onTap,
+    this.icon,
+    this.type,
+    this.color
   });
 
   @override
   Widget build(BuildContext context) {
-    return _buildListView();
-  }
-
-  ListView _buildListView() {
-    return new ListView.builder(
-      controller: _scrollController,
-      shrinkWrap: true,
-      itemCount: packets.length,
-      itemBuilder: (BuildContext context, int index) {
-        final packet = packets[index];
-
-        return new PacketItem(
-          packet: packet,
-          onTap: this.onTap,
-          onDoubleTap: this.onDoubleTap,
-          onLongPressed: this.onLongPress,
-        );
-      },
+    return new Container(
+      width: double.infinity,
+      decoration: new BoxDecoration(
+        color: color
+      ),
+      child: new FlatButton(
+        child: new Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: 21.0
+          ),
+          child: new Text(
+              type,
+              textAlign: TextAlign.left,
+              style: ButtonStyle,
+          ),
+        ), 
+        onPressed: onTap,
+      ),
     );
   }
 }

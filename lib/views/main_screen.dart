@@ -26,9 +26,12 @@ import 'package:artnet_tester/models/network_settings.dart';
 import 'package:artnet_tester/models/packet.dart';
 
 import 'package:artnet_tester/views/main_screen.dart';
+import 'package:artnet_tester/views/packet_screen.dart';
 import 'package:artnet_tester/views/network_settings_screen.dart';
+import 'package:artnet_tester/views/send_packet_selector_screen.dart';
 import 'package:artnet_tester/views/components/packet_item.dart';
 import 'package:artnet_tester/views/components/packet_count.dart';
+import 'package:artnet_tester/views/components/clear_packet.dart';
 import 'package:artnet_tester/views/components/send_packet.dart';
 import 'package:artnet_tester/views/themes.dart';
 
@@ -70,12 +73,22 @@ class MainScreenState extends State<MainScreen> {
               converter: (store) => store.state.packets,
               builder: (context, packets) {
                 return new PacketList(
-                  packets: packets
+                  packets: packets,
+                  onTap: _pushPacketPage,
+                  onDoubleTap: _deletePacket,
+                  onLongPress: _clearAllPackets,
                 );
               },
             ),
           ),
-          new SendPacket(_pushSendPacketPage),
+          new Row(
+            children: <Widget>[
+              new ClearPacket(_clearAllPackets),
+              new Expanded(
+                child: new SendPacket(_pushSendPacketPage),
+              ),
+            ],
+          )
         ],
       )
     );
@@ -92,7 +105,31 @@ class MainScreenState extends State<MainScreen> {
   }
 
   void _pushSendPacketPage() {
-    print("Send Packet");
+    Navigator.of(context).push(
+      new MaterialPageRoute(
+        builder: (context) {
+          return SendPacketSelectorScreen();
+        },
+      ),
+    );
+  }
+
+  void _pushPacketPage(Packet packet){
+    Navigator.of(context).push(
+      new MaterialPageRoute(
+        builder: (context) {
+          return PacketScreen(packet: packet);
+        },
+      ),
+    );
+  }
+
+  void _deletePacket(Packet packet){
+    StoreProvider.of<AppState>(context).dispatch(new ArtnetAction(ArtnetActions.deletePacket, packet));
+  }
+
+  void _clearAllPackets([Packet packet]){
+    StoreProvider.of<AppState>(context).dispatch(new ArtnetAction(ArtnetActions.clearPacket, null));
   }
 
 }

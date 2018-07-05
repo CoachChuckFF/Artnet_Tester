@@ -34,9 +34,16 @@ List<Packet> packetReducer(List<Packet> state, action){
   ArtnetAction act = action;
 
   switch(act.action){
+    case ArtnetActions.sendPacket:
+      tron.sendPacket(act.packet.artnetPacket.udpPacket);
+      return new List<Packet>.from(state)..add(act.packet);
+    break;
     case ArtnetActions.addPacket:
       return new List<Packet>.from(state)..add(act.packet);
     break;
+    case ArtnetActions.deletePacket:
+      return new List<Packet>.from(state)..remove(act.packet);
+    break;  
     case ArtnetActions.clearPacket:
       return const [];
     break;
@@ -71,8 +78,14 @@ int countReducer(int state, action){
   ArtnetAction act = action;
 
   switch(act.action){
+    case ArtnetActions.sendPacket:
+      state++;
+    break;
     case ArtnetActions.addPacket:
       state++;
+    break;
+    case ArtnetActions.deletePacket:
+      state--;
     break;
     case ArtnetActions.clearPacket:
       state = 0;

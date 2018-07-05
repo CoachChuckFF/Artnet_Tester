@@ -23,7 +23,7 @@ enum SettingActions {
 
 enum ArtnetActions {
   addPacket,
+  deletePacket,
   sendPacket,
   clearPacket,
-  updateSettings,
 }

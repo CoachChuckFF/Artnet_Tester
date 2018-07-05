@@ -18,44 +18,40 @@ import 'package:artnet_tester/models/packet.dart';
 import 'package:artnet_tester/views/main_screen.dart';
 import 'package:artnet_tester/views/network_settings_screen.dart';
 import 'package:artnet_tester/views/components/packet_item.dart';
+import 'package:artnet_tester/views/themes.dart';
 
 import 'package:artnet_tester/controllers/reducers.dart';
 import 'package:artnet_tester/controllers/udp_server.dart';
 
-class PacketList extends StatelessWidget {
-  final List<Packet> packets;
-  final PacketActionCallback onTap;
-  final PacketActionCallback onDoubleTap;
-  final PacketActionCallback onLongPress;
-  final ScrollController _scrollController = new ScrollController();
+class ClearPacket extends StatelessWidget {
+  final onTap;
 
-  PacketList({
-    @required this.packets,
-    @required this.onTap,
-    @required this.onDoubleTap,
-    @required this.onLongPress,
-  });
+  ClearPacket(this.onTap);
 
   @override
   Widget build(BuildContext context) {
-    return _buildListView();
-  }
-
-  ListView _buildListView() {
-    return new ListView.builder(
-      controller: _scrollController,
-      shrinkWrap: true,
-      itemCount: packets.length,
-      itemBuilder: (BuildContext context, int index) {
-        final packet = packets[index];
-
-        return new PacketItem(
-          packet: packet,
-          onTap: this.onTap,
-          onDoubleTap: this.onDoubleTap,
-          onLongPressed: this.onLongPress,
-        );
-      },
+    return new Container(
+      decoration: new BoxDecoration(
+        color: Colors.deepOrange
+      ),
+      child: new FlatButton.icon(
+        label: new Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: 21.0
+          ),
+          child: new Text(
+              "Clear",
+              textAlign: TextAlign.center,
+              style: ButtonStyle,
+          ),
+        ), 
+        icon: const Icon(
+          Icons.delete,
+          color: Colors.white,
+          size: 55.0,
+          ),
+        onPressed: onTap,
+      ),
     );
   }
 }
