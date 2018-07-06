@@ -1,25 +1,12 @@
 import 'dart:io';
 import 'dart:async';
 import 'package:validator/validator.dart';
-import 'package:flutter/material.dart';
 import 'package:d_artnet/d_artnet.dart';
-
-import 'package:flutter/material.dart';
-import 'package:d_artnet/d_artnet.dart';
-
 import 'package:redux/redux.dart';
-import 'package:flutter_redux/flutter_redux.dart';
-
 import 'package:artnet_tester/models/action.dart';
 import 'package:artnet_tester/models/app_state.dart';
-import 'package:artnet_tester/models/network_settings.dart';
 import 'package:artnet_tester/models/packet.dart';
 
-import 'package:artnet_tester/views/main_screen.dart';
-import 'package:artnet_tester/views/network_settings_screen.dart';
-
-import 'package:artnet_tester/controllers/reducers.dart';
-import 'package:artnet_tester/controllers/udp_server.dart';
 
 final UdpServerController tron = new UdpServerController();
 
@@ -68,7 +55,6 @@ class UdpServerController{
       packet = ArtnetBeepBeepPacket(null, gram.data);
       if(packet.uuid == this._uuid){
         this._ownIp = gram.address;
-        print("Own ip: " + this._ownIp.toString());
       }
     }
 
@@ -117,7 +103,7 @@ class UdpServerController{
   }
 
   void sendPacket(List<int> packet,[ip, int port]){
-    InternetAddress ipToSend = InternetAddress(broadcast);
+    InternetAddress ipToSend = InternetAddress(this.outgoingIp);
     int portToSend = (port == null) ? this.outgoingPort : port; 
 
     if(ip != null){
@@ -139,7 +125,6 @@ class UdpServerController{
     ArtnetPollPacket packet = ArtnetPollPacket();
 
     sendPacket(packet.udpPacket, broadcast, artnetPort);
-    print("tick");
     new Timer(Duration(seconds: 15), _tick);
   }
 
@@ -147,7 +132,6 @@ class UdpServerController{
     ArtnetBeepBeepPacket packet = ArtnetBeepBeepPacket(this._uuid);
 
     sendPacket(packet.udpPacket, broadcast, artnetPort);
-    print("beep");
     new Timer(Duration(seconds: 33), _beep);
   }
 
@@ -178,7 +162,7 @@ class UdpServerController{
     reply.longName = "Blizzard Art-Net Analyzer - Baa";
 
     reply.nodeReport = "!Enjoy the little things!";
-    //reply.packet.setUint8(ArtnetPollReplyPacket.nodeReportIndex, 0); //Sometimes you have to look for the little things
+    reply.packet.setUint8(ArtnetPollReplyPacket.nodeReportIndex, 0); //Sometimes you have to look for the little things
 
     reply.numPorts = 1;
 

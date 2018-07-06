@@ -4,9 +4,8 @@ import './network_settings.dart';
 class ArtnetAction {
   final dynamic action; 
   final Packet packet;
-
+  
   ArtnetAction(this.action, this.packet);
-
 }
 
 class SettingAction {

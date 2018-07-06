@@ -1,8 +1,5 @@
-import 'dart:io';
-import 'package:meta/meta.dart';
 import 'package:d_artnet/d_artnet.dart';
 
-@immutable
 class Packet {
   final bool receivedItem;
   final ArtnetPacket artnetPacket;
